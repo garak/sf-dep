@@ -1,0 +1,16 @@
+{
+    "name": "garak/sf-dep",
+    "description": "Shared Deployer recipe for Symfony projects",
+    "license": "MIT",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Massimiliano Arione",
+            "email": "garakkio@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=8.2",
+        "deployer/deployer": "^7.5 || ^8.0"
+    }
+}

@@ -9,7 +9,7 @@ Shared Deployer recipe for Symfony projects. Includes `recipe/symfony.php` and `
 
 namespace Deployer;
 
-require 'vendor/garak/sf-dep/recipe/sf-dep.php';
+require_once 'vendor/garak/sf-dep/recipe/sf-dep.php';
 
 set('application', 'myapp');
 set('repository', 'git@bitbucket.org:garak/{{application}}.git');

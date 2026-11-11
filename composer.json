@@ -10,7 +10,12 @@
         }
     ],
     "require": {
-        "php": ">=8.2",
+        "php": "^8.2",
         "deployer/deployer": "^7.5 || ^8.0"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-main": "1.x-dev"
+        }
     }
 }

@@ -33,6 +33,7 @@ Do not require `recipe/symfony.php` again in the project.
 |---|---|---|
 | `deploy:assets:build_local` | after `deploy:prepare` | runs `assets_build_cmd`, tars `assets_dirs` |
 | `deploy:assets:upload` | before `deploy:symlink` | scp + extract into the release |
+| `deploy:assets:cleanup` | end of `deploy:assets:upload`, after `deploy:failed` | removes the local archive |
 | `deploy:secrets:key` | after `deploy:shared` | `secrets` mode with a vault only: uploads the decryption key if missing, `chmod 640`, links it into the release |
 | `deploy:db:update` | before `deploy:symlink` | `doctrine:schema:update` |
 | `deploy:fpm:clear` | after `deploy:symlink` | path-scoped OPcache invalidation + APCu clear, only if `cachetool` is set |
@@ -52,7 +53,7 @@ DB copy tasks pass credentials through a temporary `--defaults-extra-file`, neve
 | `build_assets` | `true` |
 | `assets_build_cmd` | `npm run build` |
 | `assets_dirs` | `['public/build']` |
-| `assets_archive` | `assets.tgz` |
+| `assets_archive` | `{sys temp dir}/{{application}}-{{alias}}-assets.tgz` |
 | `env_source` | `secrets` (or `vhost`) |
 | `secrets_list` | `config/secrets/prod/prod.list.php` |
 | `db_env_var` | `APP_DATABASE_URL` |

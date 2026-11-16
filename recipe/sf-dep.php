@@ -14,7 +14,8 @@ set('release_name', static fn (): string => \date('YmdHis'));
 set('build_assets', true);
 set('assets_build_cmd', 'npm run build');
 set('assets_dirs', ['public/build']);
-set('assets_archive', 'assets.tgz');
+// Outside the project, so a failed deploy can't leave it in the git tree; per host, so parallel deploys don't clash.
+set('assets_archive', static fn (): string => \sys_get_temp_dir().'/'.get('application').'-'.get('alias').'-assets.tgz');
 
 // Where the prod env vars live:
 // - "secrets" (preferred): Symfony prod vault, decryption key kept in shared/ and readable by http_group only.
@@ -137,7 +138,7 @@ task('deploy:assets:build_local', static function (): void {
         return;
     }
     runLocally('{{assets_build_cmd}}');
-    runLocally('tar zcf {{assets_archive}} '.\implode(' ', \array_map('escapeshellarg', get('assets_dirs'))));
+    runLocally('tar zcf '.\escapeshellarg(get('assets_archive')).' '.\implode(' ', \array_map('escapeshellarg', get('assets_dirs'))));
 });
 
 desc('Upload precompiled assets');
@@ -145,13 +146,20 @@ task('deploy:assets:upload', static function (): void {
     if (!get('build_assets')) {
         return;
     }
+    $archive = get('assets_archive');
+    $name = \escapeshellarg(\basename($archive));
     try {
-        runLocally('scp {{assets_archive}} {{user}}@{{hostname}}:{{release_path}}/');
-        run('cd {{release_path}} && tar zxf {{assets_archive}} && rm {{assets_archive}}');
+        runLocally('scp '.\escapeshellarg($archive).' {{user}}@{{hostname}}:{{release_path}}/');
+        run("cd {{release_path}} && tar zxf $name && rm $name");
     } finally {
-        runLocally('rm -f {{assets_archive}}');
+        runLocally('rm -f '.\escapeshellarg($archive));
     }
 });
+
+desc('Remove the local assets archive');
+task('deploy:assets:cleanup', static function (): void {
+    runLocally('rm -f '.\escapeshellarg(get('assets_archive')));
+})->hidden();
 
 desc('Update database schema');
 task('deploy:db:update', static function (): void {
@@ -249,6 +257,7 @@ task('deploy:warmup', static function (): void {
 });
 
 after('deploy:failed', 'deploy:unlock');
+after('deploy:failed', 'deploy:assets:cleanup');
 after('deploy:shared', 'deploy:secrets:key');
 after('deploy:prepare', 'deploy:assets:build_local');
 before('deploy:symlink', 'deploy:assets:upload');

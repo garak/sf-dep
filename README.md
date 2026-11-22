@@ -27,6 +27,9 @@ host('production')
 
 Do not require `recipe/symfony.php` again in the project.
 
+`shared_files` defaults to `[]`: projects run with `runtime.disable_dotenv`, so the stock
+`.env.local` is not shared.
+
 ## Tasks
 
 | Task | Hook | Notes |

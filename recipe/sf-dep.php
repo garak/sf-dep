@@ -9,6 +9,8 @@ require_once 'contrib/cachetool.php';
 set('git_tty', true);
 set('keep_releases', 2);
 set('release_name', static fn (): string => \date('YmdHis'));
+// No dotenv files (runtime.disable_dotenv): drop the stock recipe's shared .env.local.
+set('shared_files', []);
 
 // Assets: built locally, uploaded as a tarball.
 set('build_assets', true);
@@ -83,7 +85,7 @@ function garakParseDbUrl(string $raw, string $source): array
 function garakRemoteDb(): array
 {
     if ('secrets' === get('env_source')) {
-        return garakParseDbUrl(run('{{bin/console}} secrets:reveal {{db_env_var}}'), 'prod secrets');
+        return garakParseDbUrl(run('{{bin/console}} secrets:reveal {{db_env_var}} 2>&1'), 'prod secrets');
     }
     $file = get('db_env_file');
 
